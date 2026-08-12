@@ -489,6 +489,7 @@
   <footer>
     <div>Prototype for the AI Passport Ideathon — Creative track, Build lane. Interaction is real; signatures, hashes and the connected tool are illustrative.</div>
     <div>Objects: <code>use_grant</code> and <code>work_receipt</code>. Built on the passport's existing primitives — connected apps, reviewable slices, per-app permission, an audit of what was used, and a public page at <code>ego.ist/i/[handle]</code>.</div>
+    <div>Full memo &amp; schemas: <a href="https://github.com/Shivang-creator/made-with" style="color:var(--accent)">github.com/Shivang-creator/made-with</a></div>
   </footer>
 </div>
 <script>
@@ -793,6 +794,16 @@
 
   renderAll();
   renderLedger();
+
+  // Deep links: #signed lands on step 1 with the grant signed,
+  // #step2 / #step3 land there signed, #revoked lands on step 3 after revocation.
+  var h = (location.hash || "").replace("#", "");
+  if (h === "signed" || h === "step2" || h === "step3" || h === "revoked") {
+    $("signBtn").click();
+    if (h === "step2") document.querySelector('.step[data-step="2"]').click();
+    if (h === "step3") document.querySelector('.step[data-step="3"]').click();
+    if (h === "revoked") $("revokeBtn").click();
+  }
 })();
 </script>
 </body>
