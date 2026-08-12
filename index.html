@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Made With</title>
+<meta name="description" content="Consent that travels both ways - an AI Passport prototype for creative work.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#128506;</text></svg>">
+<style>
+  :root {
+    --ground: #E9ECF1;
+    --surface: #FDFDFC;
+    --surface-2: #F3F5F8;
+    --ink: #141A2A;
+    --ink-2: #414A61;
+    --muted: #6B7488;
+    --line: #C9CFDA;
+    --line-soft: #DEE3EB;
+    --accent: #1F3D8A;
+    --accent-soft: #E2E8F6;
+    --on-accent: #FFFFFF;
+    --ok: #1B6349;
+    --ok-soft: #DCEDE5;
+    --warn: #7E5F16;
+    --warn-soft: #F2E9D2;
+    --stop: #9C2A2A;
+    --stop-soft: #F4DEDD;
+    --shadow: 0 1px 2px rgba(20,26,42,.06), 0 8px 24px -12px rgba(20,26,42,.18);
+    --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0D1119;
+      --surface: #151A26;
+      --surface-2: #1C2231;
+      --ink: #E5E9F2;
+      --ink-2: #B4BCCE;
+      --muted: #838DA4;
+      --line: #2E3648;
+      --line-soft: #242B3A;
+      --accent: #8AA6E8;
+      --accent-soft: #1E2740;
+      --on-accent: #0D1119;
+      --ok: #57C295;
+      --ok-soft: #163026;
+      --warn: #D6AC55;
+      --warn-soft: #2E2716;
+      --stop: #E9847C;
+      --stop-soft: #341D1E;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0D1119;
+    --surface: #151A26;
+    --surface-2: #1C2231;
+    --ink: #E5E9F2;
+    --ink-2: #B4BCCE;
+    --muted: #838DA4;
+    --line: #2E3648;
+    --line-soft: #242B3A;
+    --accent: #8AA6E8;
+    --accent-soft: #1E2740;
+    --on-accent: #0D1119;
+    --ok: #57C295;
+    --ok-soft: #163026;
+    --warn: #D6AC55;
+    --warn-soft: #2E2716;
+    --stop: #E9847C;
+    --stop-soft: #341D1E;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 32px 20px 72px; }
+
+  /* ---------- masthead ---------- */
+  .mast {
+    display: grid; gap: 14px;
+    padding-bottom: 22px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 26px;
+  }
+  .mast-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 12px 18px; }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(30px, 5vw, 44px);
+    letter-spacing: -0.015em;
+    margin: 0; font-weight: 400;
+    text-wrap: balance;
+  }
+  .mast-sub {
+    font-family: var(--serif);
+    font-size: clamp(16px, 2.4vw, 19px);
+    color: var(--ink-2); font-style: italic;
+    margin: 0; max-width: 60ch;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    font-family: var(--mono); font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: .1em;
+    padding: 4px 9px; border: 1px solid var(--line);
+    border-radius: 2px; color: var(--muted);
+    background: var(--surface);
+  }
+  .chip.key { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+
+  /* ---------- steps ---------- */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 26px; }
+  .step {
+    display: grid; gap: 3px; text-align: left;
+    padding: 12px 14px; cursor: pointer;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line-soft);
+    border-top: 3px solid var(--line);
+    border-radius: 2px; font: inherit;
+    transition: border-color .15s, background .15s;
+  }
+  .step:hover { border-top-color: var(--muted); }
+  .step[aria-current="true"] { border-top-color: var(--accent); background: var(--surface); box-shadow: var(--shadow); }
+  .step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .step-n {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .step[aria-current="true"] .step-n { color: var(--accent); }
+  .step-t { font-family: var(--serif); font-size: 17px; }
+  .step-d { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+
+  /* ---------- two-column ---------- */
+  .cols { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; align-items: start; }
+  @media (max-width: 860px) {
+    .cols { grid-template-columns: minmax(0,1fr); }
+    .steps { grid-template-columns: minmax(0,1fr); }
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line-soft);
+    border-radius: 3px; box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-h {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 11px 16px; border-bottom: 1px solid var(--line-soft);
+    background: var(--surface-2);
+  }
+  .card-h h2 {
+    margin: 0; font-family: var(--mono); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .14em; font-weight: 600; color: var(--ink-2);
+  }
+  .card-b { padding: 16px; display: grid; gap: 18px; }
+
+  .fieldset { display: grid; gap: 9px; border: 0; padding: 0; margin: 0; min-width: 0; }
+  legend {
+    padding: 0; font-family: var(--mono); font-size: 10.5px;
+    text-transform: uppercase; letter-spacing: .12em; color: var(--muted);
+  }
+  .hint { font-size: 12.5px; color: var(--muted); line-height: 1.45; margin: 0; }
+
+  .opt {
+    display: grid; grid-template-columns: auto minmax(0,1fr); gap: 10px;
+    align-items: start; padding: 9px 11px; cursor: pointer;
+    border: 1px solid var(--line-soft); border-radius: 2px;
+    background: var(--surface); transition: border-color .15s, background .15s;
+  }
+  .opt:hover { border-color: var(--line); }
+  .opt input { margin: 2px 0 0; accent-color: var(--accent); width: 15px; height: 15px; }
+  .opt input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .opt-t { font-family: var(--mono); font-size: 12.5px; }
+  .opt-d { font-size: 12px; color: var(--muted); line-height: 1.4; }
+  .opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .opt.danger:has(input:checked) { border-color: var(--stop); background: var(--stop-soft); }
+  .opt.danger:has(input:checked) .opt-d { color: var(--stop); }
+
+  .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  label.inline { font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); }
+  input[type="date"], select {
+    font: inherit; font-family: var(--mono); font-size: 13px;
+    padding: 7px 9px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink); border-radius: 2px;
+  }
+  input[type="date"]:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .btn {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em;
+    text-transform: uppercase; padding: 11px 16px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent);
+    border-radius: 2px; transition: filter .15s;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .btn[disabled] { opacity: .4; cursor: not-allowed; filter: none; }
+  .btn.stop { background: var(--stop); border-color: var(--stop); color: var(--on-accent); }
+  .btn.ghost { background: transparent; color: var(--ink-2); border-color: var(--line); }
+
+  /* ---------- json ---------- */
+  .json {
+    margin: 0; padding: 14px 16px; overflow-x: auto;
+    font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    background: var(--surface-2); color: var(--ink-2);
+    border-top: 1px solid var(--line-soft);
+    tab-size: 2;
+  }
+  .json .k { color: var(--accent); }
+  .json .s { color: var(--ok); }
+  .json .b { color: var(--warn); font-weight: 600; }
+  .json .n { color: var(--muted); }
+  .json .off { color: var(--stop); font-weight: 600; }
+  .json .redact { color: var(--muted); font-style: italic; }
+
+  .empty {
+    padding: 26px 18px; text-align: center; color: var(--muted);
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+    border: 1px dashed var(--line); border-radius: 2px; margin: 16px;
+  }
+
+  /* ---------- badge ---------- */
+  .badge-stage {
+    padding: 22px 16px; display: grid; place-items: center; gap: 12px;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 6px, var(--surface-2) 6px 7px);
+    min-height: 190px; position: relative;
+  }
+  .badge {
+    position: relative; width: 100%; max-width: 330px;
+    background: var(--surface); border: 1.5px solid var(--ink);
+    border-radius: 2px; padding: 15px 17px; display: grid; gap: 9px;
+    box-shadow: var(--shadow);
+  }
+  .badge-top {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    border-bottom: 1px solid var(--line-soft); padding-bottom: 8px;
+  }
+  .badge-mark { font-family: var(--serif); font-size: 15px; letter-spacing: .01em; }
+  .badge-lvl { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--muted); }
+  .badge-line { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: 10px; align-items: baseline; }
+  .badge-lbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: .11em; text-transform: uppercase; color: var(--muted); }
+  .badge-val { font-size: 13px; color: var(--ink); }
+  .badge-val.mono { font-family: var(--mono); font-size: 11.5px; word-break: break-all; }
+  .badge-foot {
+    border-top: 1px solid var(--line-soft); padding-top: 8px;
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em;
+    color: var(--muted); display: flex; justify-content: space-between; gap: 8px;
+  }
+  .badge.none { border-style: dashed; border-color: var(--line); background: transparent; box-shadow: none; }
+  .badge.none .badge-mark { color: var(--muted); font-style: italic; }
+
+  .overprint {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    pointer-events: none;
+  }
+  .overprint span {
+    font-family: var(--mono); font-size: clamp(13px, 3.4vw, 19px);
+    letter-spacing: .16em; font-weight: 700; text-transform: uppercase;
+    color: var(--stop); border: 3px double var(--stop);
+    padding: 7px 14px; transform: rotate(-11deg);
+    background: var(--stop-soft); opacity: .93;
+    text-align: center; line-height: 1.25;
+  }
+  .stamp-in { animation: stampIn .32s cubic-bezier(.2,1.5,.4,1) both; }
+  @keyframes stampIn {
+    from { transform: rotate(-11deg) scale(2.1); opacity: 0; }
+    to   { transform: rotate(-11deg) scale(1); opacity: .93; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp-in { animation: none; }
+    * { transition: none !important; }
+  }
+
+  .viewer-note {
+    font-size: 12.5px; color: var(--muted); text-align: center;
+    max-width: 40ch; line-height: 1.45; margin: 0;
+  }
+
+  /* ---------- ledger ---------- */
+  .ledger-wrap { margin-top: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tscroll { overflow-x: auto; }
+  th, td { text-align: left; padding: 9px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  th {
+    font-family: var(--mono); font-size: 10px; text-transform: uppercase;
+    letter-spacing: .12em; color: var(--muted); font-weight: 600;
+    background: var(--surface-2); white-space: nowrap;
+  }
+  td.time { font-family: var(--mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  td.ev { font-family: var(--mono); font-size: 11.5px; white-space: nowrap; }
+  td.detail { color: var(--ink-2); }
+  tr:last-child td { border-bottom: 0; }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: 10px;
+    letter-spacing: .1em; text-transform: uppercase; padding: 2px 7px;
+    border-radius: 2px; border: 1px solid currentColor;
+  }
+  .pill.ok { color: var(--ok); background: var(--ok-soft); }
+  .pill.stop { color: var(--stop); background: var(--stop-soft); }
+  .pill.warn { color: var(--warn); background: var(--warn-soft); }
+  .pill.idle { color: var(--muted); background: var(--surface-2); }
+
+  .panel { display: none; }
+  .panel.on { display: grid; gap: 20px; }
+
+  .callout {
+    border-left: 3px solid var(--accent); padding: 11px 14px;
+    background: var(--accent-soft); border-radius: 0 2px 2px 0;
+    font-size: 13px; line-height: 1.5; color: var(--ink-2);
+  }
+  .callout strong { color: var(--ink); }
+  .callout.stop { border-left-color: var(--stop); background: var(--stop-soft); }
+
+  footer {
+    margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 12.5px; line-height: 1.6;
+    display: grid; gap: 8px;
+  }
+  footer code { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-top">
+      <h1>Made&nbsp;With</h1>
+      <div class="chips">
+        <span class="chip key">Creative track</span>
+        <span class="chip">Build lane</span>
+        <span class="chip">AI Passport Ideathon</span>
+      </div>
+    </div>
+    <p class="mast-sub">Consent that travels both ways — a purpose-scoped grant going into an AI tool, and an attribution receipt coming back out that proves how the work was made without containing any of it.</p>
+  </header>
+
+  <div class="steps" role="tablist" aria-label="Walkthrough">
+    <button class="step" role="tab" id="tab1" aria-controls="p1" aria-current="true" data-step="1">
+      <span class="step-n">Step 1</span>
+      <span class="step-t">Grant</span>
+      <span class="step-d">Scope which slices a tool reads, why, and until when.</span>
+    </button>
+    <button class="step" role="tab" id="tab2" aria-controls="p2" aria-current="false" data-step="2">
+      <span class="step-n">Step 2</span>
+      <span class="step-t">Receipt</span>
+      <span class="step-d">Attest the assistance. Choose what a client actually sees.</span>
+    </button>
+    <button class="step" role="tab" id="tab3" aria-controls="p3" aria-current="false" data-step="3">
+      <span class="step-n">Step 3</span>
+      <span class="step-t">Revoke</span>
+      <span class="step-d">Kill future reads. Stamp the past honestly.</span>
+    </button>
+  </div>
+
+  <!-- ============ STEP 1 ============ -->
+  <section class="panel on" id="p1" role="tabpanel" aria-labelledby="tab1">
+    <div class="cols">
+      <div class="card">
+        <div class="card-h"><h2>Lumen Studio is requesting access</h2><span class="pill idle" id="grantState">Unsigned</span></div>
+        <div class="card-b">
+          <p class="hint">You are Riya Mehta, a freelance illustrator. An AI image tool wants your passport context so it stops making you re-explain your own style every session.</p>
+
+          <fieldset class="fieldset">
+            <legend>Slices requested</legend>
+            <label class="opt"><input type="checkbox" data-slice="taste" checked><span><span class="opt-t">taste</span><span class="opt-d"> — palette, composition and subject preferences</span></span></label>
+            <label class="opt"><input type="checkbox" data-slice="style" checked><span><span class="opt-t">style</span><span class="opt-d"> — your line quality and aesthetic descriptors</span></span></label>
+            <label class="opt"><input type="checkbox" data-slice="knowledge.portfolio"><span><span class="opt-t">knowledge.portfolio</span><span class="opt-d"> — your past commissioned work as reference</span></span></label>
+            <label class="opt"><input type="checkbox" data-slice="purchases"><span><span class="opt-t">purchases</span><span class="opt-d"> — what you buy. An image tool has no use for this.</span></span></label>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>Purpose — three separate questions</legend>
+            <label class="opt"><input type="checkbox" data-purpose="serve_me" checked><span><span class="opt-t">serve_me</span><span class="opt-d"> — use my context to do my work</span></span></label>
+            <label class="opt danger"><input type="checkbox" data-purpose="may_train"><span><span class="opt-t">may_train</span><span class="opt-d"> — retain my context to improve the model</span></span></label>
+            <label class="opt danger"><input type="checkbox" data-purpose="may_serve_others_in_my_style"><span><span class="opt-t">may_serve_others_in_my_style</span><span class="opt-d"> — let other users prompt in my style</span></span></label>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>Expiry</legend>
+            <div class="row">
+              <label class="inline" for="exp">Expires</label>
+              <input type="date" id="exp" value="2026-11-30" max="2027-08-13">
+            </div>
+            <p class="hint">A grant with no expiry cannot be issued. Twelve months is the ceiling.</p>
+          </fieldset>
+
+          <div class="row">
+            <button class="btn" id="signBtn">Sign grant</button>
+            <button class="btn ghost" id="resetBtn">Reset demo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>Use Grant — what Lumen receives</h2></div>
+        <pre class="json" id="grantJson"></pre>
+        <div class="card-b" style="padding-top:0">
+          <div class="callout">Notice what is <strong>absent</strong>: no legal name, no location, no client list, no other connected apps, no other grants. Lumen learns that a passport holder authorised it, and nothing else about the person.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="panel" id="p2" role="tabpanel" aria-labelledby="tab2">
+    <div class="cols">
+      <div class="card">
+        <div class="card-h"><h2>Session ended — receipt received</h2><span class="pill idle" id="rcpState">Waiting</span></div>
+        <div class="card-b">
+          <p class="hint">Lumen emits the receipt <em>to you</em>, not to the world. Nothing is published until you say so.</p>
+
+          <fieldset class="fieldset">
+            <legend>Attest the assistance</legend>
+            <label class="opt"><input type="checkbox" data-cat="ideation" checked><span><span class="opt-t">ideation</span><span class="opt-d"> — thumbnails and directions explored</span></span></label>
+            <label class="opt"><input type="checkbox" data-cat="reference" checked><span><span class="opt-t">reference</span><span class="opt-d"> — moodboard and colour studies</span></span></label>
+            <label class="opt"><input type="checkbox" data-cat="generation"><span><span class="opt-t">generation</span><span class="opt-d"> — rendered elements used in the final piece</span></span></label>
+            <label class="opt"><input type="checkbox" data-cat="editing"><span><span class="opt-t">editing</span><span class="opt-d"> — cleanup, upscale, retouch</span></span></label>
+            <p class="hint">An unordered set. There is deliberately no percentage, no score, and no way to render "more human than".</p>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <legend>Disclosure level — per piece of work</legend>
+            <div class="row">
+              <label class="inline" for="lvl">Level</label>
+              <select id="lvl">
+                <option value="L0">L0 — nothing. No badge exists.</option>
+                <option value="L1" selected>L1 — assistance used, and which categories</option>
+                <option value="L2">L2 — L1 plus which tool, and when</option>
+              </select>
+            </div>
+            <p class="hint">There is no L3. The passport never receives the work, so drafts and prompts are not disclosable — by construction, not by policy.</p>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>What the client sees</h2><span class="pill idle" id="badgeState">—</span></div>
+        <div class="badge-stage" id="badgeStage"></div>
+        <p class="viewer-note" id="viewerNote"></p>
+        <details>
+          <summary style="padding:11px 16px;border-top:1px solid var(--line-soft);cursor:pointer;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Work Receipt — the full object you hold</summary>
+          <pre class="json" id="rcpJson"></pre>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="panel" id="p3" role="tabpanel" aria-labelledby="tab3">
+    <div class="cols">
+      <div class="card">
+        <div class="card-h"><h2>Withdraw consent</h2><span class="pill idle" id="revState">Active</span></div>
+        <div class="card-b">
+          <p class="hint">The contract ended, or you changed your mind. Either is sufficient reason and neither requires an explanation.</p>
+          <div class="callout stop"><strong>Revocation is not amnesia.</strong> Past receipts are not deleted — deleting them would let you quietly erase a disclosure a client already relied on. They are stamped <code>consent_withdrawn</code>, with the date. That is the honest behaviour.</div>
+          <div class="row">
+            <button class="btn stop" id="revokeBtn">Revoke grant to Lumen Studio</button>
+          </div>
+          <p class="hint">Enforceable: future reads fail closed. Contractual, not technical: deletion of context Lumen already copied. The design makes non-compliance <em>visible</em> — reads against a dead grant surface in the ledger below. That is the honest ceiling for what any consent layer can do.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><h2>The published badge, after revocation</h2></div>
+        <div class="badge-stage" id="badgeStage2"></div>
+        <p class="viewer-note" id="viewerNote2"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEDGER ============ -->
+  <div class="card ledger-wrap">
+    <div class="card-h"><h2>Audit ledger — visible only to Riya</h2><span class="pill idle" id="ledgerCount">0 events</span></div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Time</th><th>Event</th><th>Detail</th></tr></thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <div>Prototype for the AI Passport Ideathon — Creative track, Build lane. Interaction is real; signatures, hashes and the connected tool are illustrative.</div>
+    <div>Objects: <code>use_grant</code> and <code>work_receipt</code>. Built on the passport's existing primitives — connected apps, reviewable slices, per-app permission, an audit of what was used, and a public page at <code>ego.ist/i/[handle]</code>.</div>
+  </footer>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  var state = {
+    step: 1,
+    slices: { "taste": true, "style": true, "knowledge.portfolio": false, "purchases": false },
+    purpose: { serve_me: true, may_train: false, may_serve_others_in_my_style: false },
+    expiry: "2026-11-30",
+    signed: false,
+    cats: { ideation: true, reference: true, generation: false, editing: false },
+    level: "L1",
+    revoked: false,
+    ledger: []
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function clock() {
+    var d = new Date();
+    return String(d.getHours()).padStart(2, "0") + ":" +
+           String(d.getMinutes()).padStart(2, "0") + ":" +
+           String(d.getSeconds()).padStart(2, "0");
+  }
+
+  function logEvent(event, detail, tone) {
+    state.ledger.unshift({ t: clock(), e: event, d: detail, tone: tone || "idle" });
+    renderLedger();
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // --- tiny JSON pretty-printer with semantic classes ---
+  function j(value, indent) {
+    var pad = "  ".repeat(indent);
+    var padIn = "  ".repeat(indent + 1);
+    if (value === null) return '<span class="n">null</span>';
+    if (typeof value === "boolean") {
+      return '<span class="' + (value ? "b" : "off") + '">' + value + "</span>";
+    }
+    if (typeof value === "number") return '<span class="n">' + value + "</span>";
+    if (typeof value === "string") {
+      if (value.indexOf("— not carried") > -1) return '<span class="redact">' + esc(value) + "</span>";
+      return '<span class="s">"' + esc(value) + '"</span>';
+    }
+    if (Array.isArray(value)) {
+      if (!value.length) return "[]";
+      return "[\n" + value.map(function (v) { return padIn + j(v, indent + 1); }).join(",\n") + "\n" + pad + "]";
+    }
+    var keys = Object.keys(value);
+    if (!keys.length) return "{}";
+    return "{\n" + keys.map(function (k) {
+      return padIn + '<span class="k">"' + esc(k) + '"</span>: ' + j(value[k], indent + 1);
+    }).join(",\n") + "\n" + pad + "}";
+  }
+
+  function activeSlices() {
+    return Object.keys(state.slices).filter(function (k) { return state.slices[k]; });
+  }
+  function activeCats() {
+    return Object.keys(state.cats).filter(function (k) { return state.cats[k]; });
+  }
+  function slicesRead() {
+    // Lumen only actually reads what it needed for this session.
+    return activeSlices().filter(function (s) { return s === "taste" || s === "style"; });
+  }
+  function grantStatus() {
+    if (state.revoked) return "revoked";
+    if (!state.signed) return "unsigned";
+    return "active";
+  }
+
+  // ---------- renderers ----------
+  function renderGrant() {
+    var obj = {
+      type: "use_grant",
+      grant_id: "grn_8f2a41",
+      issued_to: "app:lumen-studio",
+      issued_by: "ego.ist/i/rmehta",
+      slices: activeSlices(),
+      purpose: {
+        serve_me: state.purpose.serve_me,
+        may_train: state.purpose.may_train,
+        may_serve_others_in_my_style: state.purpose.may_serve_others_in_my_style
+      },
+      expires: state.expiry ? state.expiry + "T00:00:00Z" : null,
+      revocable: true,
+      revocation_endpoint: "https://ego.ist/api/grants/grn_8f2a41/status",
+      status: grantStatus(),
+      signature: state.signed ? "ed25519:MEUCIQD8x…" : null
+    };
+    $("grantJson").innerHTML = j(obj, 0);
+
+    var p = $("grantState");
+    if (state.revoked) { p.className = "pill stop"; p.textContent = "Revoked"; }
+    else if (state.signed) { p.className = "pill ok"; p.textContent = "Active"; }
+    else { p.className = "pill idle"; p.textContent = "Unsigned"; }
+
+    var warn = state.purpose.may_train || state.purpose.may_serve_others_in_my_style;
+    $("signBtn").textContent = state.signed ? "Grant signed" : (warn ? "Sign anyway" : "Sign grant");
+    $("signBtn").disabled = state.signed || !activeSlices().length || !state.expiry;
+  }
+
+  function renderReceipt() {
+    var read = slicesRead();
+    var obj = {
+      type: "work_receipt",
+      receipt_id: "rcp_4c1d09",
+      grant_id: "grn_8f2a41",
+      app: "app:lumen-studio",
+      session_start: "2026-08-12T14:00:00Z",
+      session_end: "2026-08-12T15:00:00Z",
+      slices_read: read,
+      output_hash: "sha256:9ad3c1f0e77b…",
+      work: "— not carried —",
+      prompts: "— not carried —",
+      drafts: "— not carried —",
+      attestation: {
+        categories: activeCats(),
+        attested_by: "ego.ist/i/rmehta",
+        signature: "ed25519:MEQCIF2b…"
+      },
+      disclosure_level: state.level,
+      status: state.revoked ? "consent_withdrawn" : "active"
+    };
+    $("rcpJson").innerHTML = j(obj, 0);
+
+    var p = $("rcpState");
+    if (!state.signed) { p.className = "pill idle"; p.textContent = "Waiting"; }
+    else if (state.revoked) { p.className = "pill stop"; p.textContent = "Withdrawn"; }
+    else { p.className = "pill ok"; p.textContent = "Received"; }
+
+    renderBadge($("badgeStage"), $("badgeState"), $("viewerNote"), false);
+    renderBadge($("badgeStage2"), null, $("viewerNote2"), true);
+  }
+
+  function renderBadge(stage, pill, note, animateStamp) {
+    if (!state.signed) {
+      stage.innerHTML = '<div class="empty">Sign the grant in step 1 first</div>';
+      if (note) note.textContent = "";
+      if (pill) { pill.className = "pill idle"; pill.textContent = "—"; }
+      return;
+    }
+
+    var cats = activeCats();
+    var lvl = state.level;
+    var html = "";
+
+    if (lvl === "L0") {
+      html = '<div class="badge none">' +
+             '<div class="badge-top"><span class="badge-mark">No badge published</span>' +
+             '<span class="badge-lvl">L0</span></div>' +
+             '<div class="badge-val" style="color:var(--muted);font-size:12.5px">' +
+             'The work carries nothing. This is the default, and it must stay a legitimate, unpenalised state.</div></div>';
+    } else {
+      var rows = '<div class="badge-line"><span class="badge-lbl">Assistance</span>' +
+                 '<span class="badge-val">' + (cats.length ? esc(cats.join(", ")) : "none declared") + "</span></div>";
+      if (lvl === "L2") {
+        rows += '<div class="badge-line"><span class="badge-lbl">Tool</span><span class="badge-val">Lumen Studio</span></div>' +
+                '<div class="badge-line"><span class="badge-lbl">Session</span><span class="badge-val">12 Aug 2026, 14:00–15:00 UTC</span></div>';
+      }
+      rows += '<div class="badge-line"><span class="badge-lbl">Output</span>' +
+              '<span class="badge-val mono">sha256:9ad3c1f0e77b…</span></div>';
+
+      html = '<div class="badge">' +
+             '<div class="badge-top"><span class="badge-mark">Made with AI assistance</span>' +
+             '<span class="badge-lvl">' + lvl + "</span></div>" +
+             rows +
+             '<div class="badge-foot"><span>ego.ist · anon:7k2m</span><span>' +
+             (state.revoked ? "WITHDRAWN" : "VERIFIED " + (lvl === "L2" ? "L2" : "L1")) +
+             "</span></div>" +
+             (state.revoked
+               ? '<div class="overprint"><span class="' + (animateStamp ? "stamp-in" : "") + '">Consent<br>withdrawn</span></div>'
+               : "") +
+             "</div>";
+    }
+
+    stage.innerHTML = html;
+
+    if (note) {
+      if (state.revoked && lvl !== "L0") {
+        note.textContent = "The badge was valid and has since been withdrawn. A client checking it later sees exactly that — not a blank, and not a lie.";
+      } else if (lvl === "L0") {
+        note.textContent = "A counterparty sees nothing at all, because there is nothing to see.";
+      } else if (lvl === "L1") {
+        note.textContent = "Enough for a marketplace upload or a competition entry. No tool names, no timings, no process.";
+      } else {
+        note.textContent = "For a client whose contract specifically requires it. Still not your drafts — those are not disclosable at any level.";
+      }
+    }
+    if (pill) {
+      if (state.revoked && lvl !== "L0") { pill.className = "pill stop"; pill.textContent = "Withdrawn"; }
+      else if (lvl === "L0") { pill.className = "pill idle"; pill.textContent = "Nothing"; }
+      else { pill.className = "pill ok"; pill.textContent = lvl + " published"; }
+    }
+  }
+
+  function renderRevoke() {
+    var p = $("revState");
+    if (state.revoked) { p.className = "pill stop"; p.textContent = "Revoked"; }
+    else if (state.signed) { p.className = "pill ok"; p.textContent = "Active"; }
+    else { p.className = "pill idle"; p.textContent = "No grant"; }
+    $("revokeBtn").disabled = !state.signed || state.revoked;
+    $("revokeBtn").textContent = state.revoked ? "Grant revoked" : "Revoke grant to Lumen Studio";
+  }
+
+  function renderLedger() {
+    var body = $("ledgerBody");
+    if (!state.ledger.length) {
+      body.innerHTML = '<tr><td colspan="3" style="color:var(--muted);font-family:var(--mono);font-size:11.5px;padding:18px 16px">No events yet — sign a grant to begin.</td></tr>';
+    } else {
+      body.innerHTML = state.ledger.map(function (r) {
+        return '<tr><td class="time">' + r.t + '</td>' +
+               '<td class="ev"><span class="pill ' + r.tone + '">' + esc(r.e) + "</span></td>" +
+               '<td class="detail">' + esc(r.d) + "</td></tr>";
+      }).join("");
+    }
+    $("ledgerCount").textContent = state.ledger.length + (state.ledger.length === 1 ? " event" : " events");
+  }
+
+  function renderAll() { renderGrant(); renderReceipt(); renderRevoke(); }
+
+  // ---------- events ----------
+  document.querySelectorAll(".step").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var n = btn.dataset.step;
+      state.step = Number(n);
+      document.querySelectorAll(".step").forEach(function (b) {
+        b.setAttribute("aria-current", b === btn ? "true" : "false");
+      });
+      document.querySelectorAll(".panel").forEach(function (p) {
+        p.classList.toggle("on", p.id === "p" + n);
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-slice]").forEach(function (el) {
+    el.addEventListener("change", function () {
+      state.slices[el.dataset.slice] = el.checked;
+      renderAll();
+    });
+  });
+  document.querySelectorAll("[data-purpose]").forEach(function (el) {
+    el.addEventListener("change", function () {
+      state.purpose[el.dataset.purpose] = el.checked;
+      renderAll();
+    });
+  });
+  document.querySelectorAll("[data-cat]").forEach(function (el) {
+    el.addEventListener("change", function () {
+      state.cats[el.dataset.cat] = el.checked;
+      if (state.signed) logEvent("attest.edit", "Categories now: " + (activeCats().join(", ") || "none") + " — the edit is recorded, not silent", "warn");
+      renderAll();
+    });
+  });
+  $("exp").addEventListener("change", function () { state.expiry = this.value; renderAll(); });
+  $("lvl").addEventListener("change", function () {
+    state.level = this.value;
+    if (state.signed) logEvent("disclosure.set", "Published badge set to " + state.level, state.level === "L0" ? "idle" : "ok");
+    renderAll();
+  });
+
+  $("signBtn").addEventListener("click", function () {
+    state.signed = true;
+    logEvent("grant.signed", "Lumen Studio may read " + activeSlices().join(", ") + " until " + state.expiry, "ok");
+    var refused = Object.keys(state.purpose).filter(function (k) { return k !== "serve_me" && !state.purpose[k]; });
+    if (refused.length) logEvent("purpose.refused", refused.join(", ") + " — withheld", "stop");
+    logEvent("read", "Lumen read " + slicesRead().join(", ") + " for session rcp_4c1d09", "ok");
+    logEvent("receipt.issued", "rcp_4c1d09 delivered to you, not published", "ok");
+    renderAll();
+  });
+
+  $("revokeBtn").addEventListener("click", function () {
+    state.revoked = true;
+    logEvent("grant.revoked", "grn_8f2a41 — future reads now fail closed", "stop");
+    logEvent("receipt.stamped", "rcp_4c1d09 marked consent_withdrawn, not deleted", "stop");
+    logEvent("badge.updated", "Published badge reverted to withdrawn", "stop");
+    setTimeout(function () {
+      logEvent("read.refused", "Lumen attempted a read against a dead grant — refused and surfaced here", "stop");
+      renderAll();
+    }, 1400);
+    renderAll();
+    document.querySelector('.step[data-step="3"]').click();
+  });
+
+  $("resetBtn").addEventListener("click", function () {
+    state.signed = false; state.revoked = false; state.ledger = [];
+    state.slices = { "taste": true, "style": true, "knowledge.portfolio": false, "purchases": false };
+    state.purpose = { serve_me: true, may_train: false, may_serve_others_in_my_style: false };
+    state.cats = { ideation: true, reference: true, generation: false, editing: false };
+    state.level = "L1"; state.expiry = "2026-11-30";
+    document.querySelectorAll("[data-slice]").forEach(function (el) { el.checked = !!state.slices[el.dataset.slice]; });
+    document.querySelectorAll("[data-purpose]").forEach(function (el) { el.checked = !!state.purpose[el.dataset.purpose]; });
+    document.querySelectorAll("[data-cat]").forEach(function (el) { el.checked = !!state.cats[el.dataset.cat]; });
+    $("lvl").value = "L1"; $("exp").value = "2026-11-30";
+    renderAll(); renderLedger();
+  });
+
+  renderAll();
+  renderLedger();
+})();
+</script>
+</body>
+</html>
