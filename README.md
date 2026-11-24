@@ -361,7 +361,7 @@ tool boundaries.
 Interactive walkthrough of the three screens — grant, receipt with live
 disclosure-level switching, and revocation with the resulting audit ledger.
 
-*(link inserted at submission)*
+**https://shivang-creator.github.io/made-with/** — deep links: `#signed`, `#step2`, `#step3`, `#revoked`.
 
 ---
 
